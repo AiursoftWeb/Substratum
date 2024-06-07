@@ -52,11 +52,18 @@ judge() {
   fi
 }
 
-# Function to install required tools
-install_required_tools() {
+#==========================
+# Function to update package list
+#==========================
+update_package_list() {
     print_ok "Updating package list..."
     sudo apt-get update
-    judge "Updating package list"
+    judge "Update package list"
+}
+
+# Function to install required tools
+install_required_tools() {
+    update_package_list
 
     print_ok "Installing apt-transport-https, ca-certificates, curl, gnupg, and lsb-release..."
     sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
@@ -68,19 +75,18 @@ add_docker_gpg_key() {
     print_ok "Adding Docker's official GPG key..."
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg --yes
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] $DOCKER_DOWNLOAD_URL/linux/ubuntu $DIST_VERSION $DOCKER_CHANNEL" | sudo tee /etc/apt/sources.list.d/docker.list
-    judge "Adding Docker's official GPG key"
+    judge "Add Docker's official GPG key"
 }
-
 
 # Function to download, rename, and move a single package
 download_package() {
     local pkg=$1
     local pkg_dir=$2
-    
+
     print_ok "Downloading $pkg..."
     local VERSION=$(apt-cache madison $pkg | head -1 | awk '{print $3}')
     apt download $pkg=$VERSION
-    judge "Downloading $pkg"
+    judge "Download $pkg"
 
     print_ok "Renaming and moving $pkg..."
 
@@ -98,9 +104,9 @@ download_package() {
 tar_installer() {
     local pkg=$1
     local folder=$2
-    print_ok "Creating tarball of installer..."
+    print_ok "Creating tarball of installer folder $folder..."
     tar -czf $pkg $folder
-    judge "Creating tarball of installer"
+    judge "Create tarball of installer folder $folder"
 
     print_ok "Installer tarball created at $pkg"
 }
@@ -109,10 +115,7 @@ tar_installer() {
 main() {
     install_required_tools
     add_docker_gpg_key
-
-    print_ok "Updating package list..."
-    sudo apt-get update
-    judge "Updating package list"
+    update_package_list
 
     for PKG in $PKGS; do
         download_package $PKG $PKG_DIR
