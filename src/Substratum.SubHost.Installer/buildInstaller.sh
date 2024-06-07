@@ -8,9 +8,7 @@ DOCKER_DOWNLOAD_URL="https://download.docker.com"
 DOCKER_CHANNEL="stable"
 PKG_DIR="./SubHost.Installer/deb-packages"
 TAR_DIR="./SubHost.Installer"
-PKGS="docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin \
-dotnet8 dotnet-sdk-8.0 aspnetcore-runtime-8.0 aspnetcore-targeting-pack-8.0 dotnet-apphost-pack-8.0 dotnet-runtime-8.0 dotnet-targeting-pack-8.0 dotnet-templates-8.0 netstandard-targeting-pack-2.1-8.0 \
-ca-certificates curl"
+PKGS="docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin ca-certificates curl"
 BUILD_OUTPUT="/tmp/SubHost.Installer.tar.gz"
 
 # Create output directory
