@@ -48,7 +48,7 @@ download_package() {
 
 tar_installer() {
     echo "Creating tarball of installer..."
-    tar -czf SubHost.Installer.tar.gz $TAR_DIR
+    tar -czf ./SubHost.Installer.tar.gz $TAR_DIR
 }
 
 # Main function to orchestrate the steps
