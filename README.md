@@ -1,93 +1,121 @@
 # Substratum
 
+Substratum is a container-based hosting service and cluster management service.
 
+## Basic Data structure
 
-## Getting started
+* DataCenters (1-1 mapping with SubPulse)
+  * Clusters (1-1 mapping with SubCenter)
+    * Hosts (1-1 mapping with SubHost)
+      * Containers
+    * Stacks
+      * Services
+        * Containers
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+* Day 1 Open-source
+* Based on .NET 8
+* Support both Single-machine and Cluster management
+* Linux based
+* Container based
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Substratum is SubHost + SubCenter + SubPulse
 
-## Add your files
+Substratum is a combination of SubHost, SubCenter, and SubPulse.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+Substratum website will provide the installer for SubHost, SubCenter and SubPulse. Both files are `.tar.gz` files with `install.sh` script.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.aiursoft.cn/aiursoft/substratum.git
-git branch -M master
-git push -uf origin master
-```
+* SubHost-installer-1.0.0.tar.gz
+* SubCenter-installer-1.0.0.tar.gz
+* SubPulse-installer-1.0.0.tar.gz
 
-## Integrate with your tools
+Both SubHost and SubCenter supports Air-gapped installation.
 
-- [ ] [Set up project integrations](https://gitlab.aiursoft.cn/aiursoft/substratum/-/settings/integrations)
+* SubHost is a container-based hosting service and it contains the following services:
+  * Docker (For running containers)
+  * Workflow Engine (For running host workflows)
+  * Web Portal (For managing containers and deploy single container services)
+  * Performance Monitor (For monitoring performance) (Based on stathub) (By default server enabled until joined to SubCenter)
+  * Log Monitor (For monitoring logs) (By default enabled until joined to SubCenter)
+  * Registry (For storing images) (By default enabled until joined to SubCenter)
+  * Nuget (For storing workflow packages) (By default enabled until joined to SubCenter)
+  * InfluxDB (For storing performance data and workflow logs)
+* SubCenter is a cluster management service
 
-## Collaborate with your team
+Substratum is a combination of both services.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## SubHost
 
-## Test and Deploy
+SubHost will be installed on each machine in the cluster.
 
-Use the built-in continuous integration in GitLab.
+SubHost will lock down the machine (Disable SSH) and only allow API and Web Portal access.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+SubHost authentication is based on Linux users. By default, after installing, user can use the root user to login to the Web Portal.
 
-***
+### Installation
 
-# Editing this README
+* User must agree to the EULA during installation.
+* SubHost will require the user to set root password during installation.
+* SubHost will delete all data and users on the machine during installation.
+* SubHost will require a data folder to be set during installation. (At least 50GB)
+* SubHost will require a backup folder to be set during installation. (At least 50GB)
+* SubHost will require a hostname to be set during installation. The hostname should be unique in the cluster.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## SubCenter
 
-## Suggestions for a good README
+It is not supported to install SubCenter on a machine with SubHost.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+SubCenter's authentication supports both Linux users and SubPulse users. It is suggested to use SubPulse users for authentication for easier cluster management.
 
-## Name
-Choose a self-explaining name for your project.
+SubHost can join SubCenter to form a cluster. It requires IP address and root password to join.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Usually, a SubCenter instance can host a cluster with around 2-200 hosts. For more than 200 hosts, it is suggested to create another SubCenter instance and manage it with SubPulse.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+* SubCenter is a cluster management service
+  * Cluster Workflow Engine (For running cluster workflows)
+  * Cluster Monitor (For monitoring clusters) (based on stathub-server)
+  * Cluster Registry (For storing cluster images)
+  * Cluster Nuget (For storing cluster packages)
+  * Cluster apt mirror (For storing cluster packages)
+  * InfluxDB (For storing performance data and cluster logs)
+  * Inventory Database (For storing cluster inventory data)
+  * PXE Server (For auto OS installation)
+  * Cluster Web Portal (For managing clusters)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+SubCenter provides features like:
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+* Web Portal (Cluster)
+* Inventory Management
+* Stack Container Deployment (For deploying stack containers)
+* Containers Live Migration
+* DRS (Distributed Resource Scheduler)
+* DPM (Dynamic Power Management)
+* HA (High Availability)
+* Storage DRS and Storage HA
+* Begin/End Maintenance Mode
+* Cluster Resource Pooling
+* Software Defined Networking
+* Software Defined Storage
+  * SAN mode (User can set how many copies of data to store)
+  * Shared mode
+* Host Compliance
+* PXE based auto OS installation
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## SubPulse
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Without SubPulse, SubCenter already has the ability to manage the cluster. However, it is not easy to monitor all clusters in a single dashboard.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+When managing a large dataCenter, it is best practice to progressively upgrade SubCenter and SubHost instances.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+When managing a large dataCenter, it is also necessary to auto monitor all clusters and provide incident management.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+When there are a lot of clusters, SubPulse will be useful to monitor all clusters in a single dashboard.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+SubCenter can join SubPulse to form a datacenter. It requires IP address and root password to join.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+* SubPulse is a dashboard for monitoring clusters
+  * Authentication Service (For authenticating users)
+  * Deployment Service (For deploying SubHost and SubCenter)
+  * Datacenter Inventory Database (For storing datacenter inventory data)
+  * Cluster Heatmap (For monitoring clusters)
+  * Incident Management (For managing incidents)
+  * Alerting Service (For sending alert and manage on-call)
