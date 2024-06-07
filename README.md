@@ -16,6 +16,8 @@ Substratum is a container-based hosting service and cluster management service.
       * Physical Disks
     * Networks
 
+Principal of Substratum:
+
 * Day 1 Open-source
 * Based on .NET 8
 * Support both Single-machine and Cluster management
