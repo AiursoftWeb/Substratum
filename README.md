@@ -23,6 +23,7 @@ Principal of Substratum:
 * Support both Single-machine and Cluster management
 * Linux based
 * Container based
+* Enforce all packages ever green
 
 ## Substratum is SubHost + SubCenter + SubPulse
 
@@ -91,6 +92,7 @@ SubCenter provides features like:
 
 * Web Portal (Cluster)
 * Inventory Management
+* Workflow Engine (Cluster)
 * Stack Container Deployment (For deploying stack containers)
 * Containers Live Migration
 * DRS (Distributed Resource Scheduler)
@@ -125,3 +127,99 @@ SubCenter can join SubPulse to form a datacenter. It requires IP address and roo
   * Cluster Heatmap (For monitoring clusters)
   * Incident Management (For managing incidents)
   * Alerting Service (For sending alert and manage on-call)
+
+## Workflow Engine
+
+Workflow Engine may be deployed to SubHost or SubCenter.
+
+It has two modes:
+
+* Local workflow
+* Remote workflow (Local workflow remotely)
+* Cluster workflow
+
+### Local workflow
+
+Local workflow are workflows running on the same machine with the workflow engine.
+
+* Both SubHost and SubCenter can run local workflows.
+* Local workflow can access the local machine's resources, like starting new processes, reading files, etc.
+
+For example:
+
+```csharp
+public class RebootWorkflow : LocalWorkflow
+{
+    public override void Run()
+    {
+        Process.Start("reboot");
+    }
+}
+```
+
+```bash
+[my-substratum/subhost01] $ subctl run reboot
+```
+
+Sample workflows:
+
+* RebootWorkflow
+* StartNewContainerWorkflow
+* StopContainerWorkflow
+
+### Remote workflow
+
+Remote workflow, also known as `Local workflow (remotely)` are local workflows triggered by a SubCenter machine. It doesn't have to be built again.
+
+* Only SubCenter can run local workflows remotely.
+* Local workflow (remotely) added a new parameter to local workflow indicating the target machine.
+
+For example:
+
+```bash
+[my-substratum/subcenter01] $ subctl run reboot --target=subhost01
+```
+
+### Cluster workflow
+
+Cluster workflow are workflows running on the cluster.
+
+* Only SubCenter can run cluster workflows.
+* Cluster workflow is actually local workflow running on SubCenter, but it can start local workflows and local workflows (remotely) on all machines in the cluster.
+* Cluster workflow can also access Inventory Database to get the list of machines in the cluster.
+
+For example:
+
+```csharp
+public class BulkRebootWorkflow : ClusterWorkflow
+{
+    private readonly RemoteWorkflowStarter _remoteWorkflowStarter;
+
+    public BulkRebootWorkflow(RemoteWorkflowStarter remoteWorkflowStarter) // Only cluster workflow can use this RemoteWorkflowStarter
+    {
+        _remoteWorkflowStarter = remoteWorkflowStarter;
+    }
+
+    public override void Run()
+    {
+        foreach (var host in InventoryDatabase.GetHosts())
+        {
+            _remoteWorkflowStarter.RunNewWorkflow(host, new RebootWorkflow());
+        }
+    }
+}
+```
+
+```bash
+[my-substratum/subcenter01] $ subctl run bulk-reboot
+```
+
+Sample workflows:
+
+* AddNewHostWorkflow
+* RemoveHostWorkflow
+* BeginMaintenanceModeWorkflow
+* EndMaintenanceModeWorkflow
+* BulkRebootWorkflow
+* CheckHostComplianceWorkflow
+* OnboardNewStackWorkflow
