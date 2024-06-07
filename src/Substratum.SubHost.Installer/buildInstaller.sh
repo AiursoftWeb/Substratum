@@ -8,7 +8,8 @@ DOCKER_DOWNLOAD_URL="https://download.docker.com"
 DOCKER_CHANNEL="stable"
 PKG_DIR="./SubHost.Installer/deb-packages"
 TAR_DIR="./SubHost.Installer"
-PKGS="docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin"
+PKGS="docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-ce-rootless-extras docker-buildx-plugin dotnet8 ca-certificates curl"
+BUILD_OUTPUT="/tmp/SubHost.Installer.tar.gz"
 
 # Create output directory
 mkdir -p $PKG_DIR
@@ -48,7 +49,7 @@ download_package() {
 
 tar_installer() {
     echo "Creating tarball of installer..."
-    tar -czf ./SubHost.Installer.tar.gz $TAR_DIR
+    tar -czf $BUILD_OUTPUT $TAR_DIR
 }
 
 # Main function to orchestrate the steps
