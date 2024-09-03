@@ -1,0 +1,111 @@
+networks:
+  aimer-blog
+
+services:
+  database:
+    image: postgres:13
+    networks:
+      - aimer-blog
+    environment:
+      POSTGRES_DB: blog
+      POSTGRES_USER: aimer
+      POSTGRES_PASSWORD: aimer
+    volumes:
+      - aimer-blog-db:/var/lib/postgresql/data
+    deploy:
+
+      # Limit the resources of the service
+      resources:
+        cpu: 0.5
+        memory: 512M
+
+      # Enable the high availability of the service
+      data_high_availability:
+        enabled: true
+        data-replicas: 2
+
+      # Disable the auto-scaling of the service
+      replicas:
+        policy: fixed
+        count: 1
+
+      # Auto upgrade the service if the new version is available
+      auto-upgrade:
+        policy: stop-first
+
+      # In case this container needs to be migrated to keep cluster evenly distributed, stop it first
+      migration:
+        migration-policy: stop-first
+
+  app:
+    depends_on:
+      - database
+    image: hub.aiursoft.cn/aimerneige/blog
+    networks:
+      - aimer-blog
+    environment:
+      DATABASE_URL: postgres://aimer:aimer@database:5432/blog
+    volumes:
+      - aimer-blog:/app/data
+    passthrough:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+
+      # Limit the resources of the service
+      resources:
+        cpu: 0.5
+        memory: 512M
+
+      # Enable the high availability of the service
+      data_high_availability:
+        enabled: false
+      
+      # Enable the auto-scaling of the service
+      replicas:
+        policy: auto-scale
+        min_replicas: 1
+        max_replicas: 5
+        requests_threshold_per_instance_minute: 100
+
+      # Auto upgrade the service if the new version is available
+      auto-upgrade:
+        policy: start-new-first
+
+      # Distribute the containers to more nodes to more evenly utilize the resources
+      migration:
+        migration-policy: start-new-first
+
+      # Enable the HTTP load balancer for the service
+      http:
+        enabled: true
+        domain: blog.aimer.neige
+        inner_port: 80
+        external_port: 80
+
+        load_balancer:
+          algorithm: round-robin
+          client-id-cookie:
+            enabled: true
+            name: client-id
+            ttl: 1h
+
+        health_check:
+          - path: /health
+            expect: 200
+            interval: 10s
+            timeout: 5s
+            retries: 3
+
+        https:
+          enabled: true
+          external_port: 443
+          auto_tls: true
+          hsts_max_age: 31536000
+          certificate:
+            issuer: letsencrypt
+            email: anduin@aiursoft.com
+
+        append_response_headers:
+          - cache-control: "public, max-age=31536000"
+          - x-frame-options: "DENY"
+          - x-xss-protection: "1; mode=block"
