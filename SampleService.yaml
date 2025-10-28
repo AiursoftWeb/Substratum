@@ -40,7 +40,7 @@ services:
   app:
     depends_on:
       - database
-    image: hub.aiursoft.cn/aimerneige/blog
+    image: hub.aiursoft.com/aimerneige/blog
     networks:
       - aimer-blog
     environment:
